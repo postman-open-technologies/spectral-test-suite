@@ -1,17 +1,20 @@
-import fs from 'fs';
-import yaml from 'js-yaml';
-import glob from 'glob';
-import {resolve} from 'path';
+const fs = require('fs');
+const yaml = require('js-yaml');
+const glob = require('glob');
+const resolve = require('path').resolve;
 
-export function loadYaml(filename) {
+function loadYaml(filename) {
   const fileContents = fs.readFileSync(filename, 'utf8');
   const data = yaml.load(fileContents);
   return data;
 }
 
-export function listFiles(pattern) {
+function listFiles(pattern) {
   const paths = glob.sync(pattern);
   // Turning relative path in absolute ones
   const absolutePaths = paths.map(path => resolve(path));
   return absolutePaths;
 }
+
+exports.loadYaml = loadYaml;
+exports.listFiles = listFiles;

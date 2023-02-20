@@ -33,7 +33,7 @@ function deepCopy(object) {
 
 // Supposed to be use with document that share the exact same structure
 // between current version and target version
-export function getDocumentWithVersion(document, version){
+function getDocumentWithVersion(document, version){
   // TODO use a more complete generator/converter?
   const versionProperty = generateOpenApiVersion(version);
   const content = {};
@@ -49,7 +49,7 @@ export function getDocumentWithVersion(document, version){
   return modified;
 }
 
-export function getOpenApiVersionFromDocument(document) {
+function getOpenApiVersionFromDocument(document) {
   let version;
   if(document.hasOwnProperty('openapi')){
    version = document.openapi;
@@ -60,6 +60,10 @@ export function getOpenApiVersionFromDocument(document) {
   return version;
 }
 
-export function getShortVersionValue(versionValue){
+function getShortVersionValue(versionValue){
   return versionValue.substring(0,3);
 }
+
+exports.getDocumentWithVersion = getDocumentWithVersion;
+exports.getOpenApiVersionFromDocument = getOpenApiVersionFromDocument;
+exports.getShortVersionValue = getShortVersionValue;

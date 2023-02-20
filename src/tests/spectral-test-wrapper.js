@@ -1,18 +1,19 @@
 // To get absolute path required by Spectral bundler
-import {resolve} from 'path';
+const resolve = require('path').resolve;
 // Spectral
-import spectralCore from "@stoplight/spectral-core";
+const spectralCore = require('@stoplight/spectral-core');
 const { Spectral, Document } = spectralCore;
-import { bundleAndLoadRuleset } from "@stoplight/spectral-ruleset-bundler/with-loader";
-import fs from 'fs';
-import spectralRuntime from "@stoplight/spectral-runtime";
+const bundleAndLoadRuleset = require('@stoplight/spectral-ruleset-bundler/with-loader').bundleAndLoadRuleset;
+
+const fs = require('fs');
+const spectralRuntime = require('@stoplight/spectral-runtime');
 const { fetch } = spectralRuntime;
-import Parsers from "@stoplight/spectral-parsers"; // make sure to install the package if you intend to use default parsers!
+const Parsers = require('@stoplight/spectral-parsers'); // make sure to install the package if you intend to use default parsers!
 
 // JSON Path Plus
-import {JSONPath} from 'jsonpath-plus';
+const JSONPath = require('jsonpath-plus').JSONPath;
 // to load pure rule without parsing
-import * as fileUtils from './file.js';
+const fileUtils = require('./file.js');
 
 function spectralPathToJsonPointer(path){
   const escapedPath = path.map(value => value.replaceAll('/','~1'));
@@ -20,7 +21,7 @@ function spectralPathToJsonPointer(path){
   return jsonPointer;
 }
 
-export default class SpectralTestWrapper {
+class SpectralTestWrapper {
 
   constructor() {}
 
@@ -150,3 +151,5 @@ export default class SpectralTestWrapper {
   }
 
 }
+
+exports.SpectralTestWrapper = SpectralTestWrapper;

@@ -1,4 +1,4 @@
-import * as SpectralTestRunner from '../src/tests/spectral-test-runner.js';
+const SpectralTestRunner = require('../src/index.js').SpectralTestRunner;
 
 // TODO run test for a specific rule only
 // Optional --rule=a-rule-name parameter to test only one rule instead of all

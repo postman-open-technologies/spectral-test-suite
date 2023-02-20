@@ -1,6 +1,6 @@
-import * as FileUtils from './file.js';
-import SpectralTestValidator from './spectral-test-validator.js';
-import * as path from 'path';
+const FileUtils = require('./file.js');
+const {SpectralTestValidator} = require('./spectral-test-validator.js');
+const path = require('path');
 
 function mapTestsAndRulesets(testFilenames, rulesetFilenames){
   
@@ -84,7 +84,7 @@ function mapTestsAndRulesets(testFilenames, rulesetFilenames){
   return results;
 }
 
-export default class SpectralTestLoader {
+class SpectralTestLoader {
 
   constructor(testFilenamePattern, rulesetFilenamePattern) {
     this.testFilenamePattern = testFilenamePattern;
@@ -124,3 +124,5 @@ console.log('tests without rulesets', loader.getWithoutRulesetTests());
 console.log('rulesets without tests', loader.getWithoutTestRulesets());
 console.log('invalid tests', loader.getInvalidTests());
 */
+
+exports.SpectralTestLoader = SpectralTestLoader;

@@ -1,7 +1,7 @@
-import Ajv2020 from 'ajv/dist/2020.js';
-import * as fileUtils from './file.js';
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
+const Ajv2020 = require('ajv/dist/2020.js');
+const fileUtils = require('./file.js');
+const dirname = require('path').dirname;
+const fileURLToPath = require('url').fileURLToPath;
 
 const DEFAULT_FORMAT = 'spectral-v1.0';
 const SCHEMAS = {
@@ -10,7 +10,7 @@ const SCHEMAS = {
 
 function getTestSuiteSchemaFilepath(schemaFilename) {
   // TODO manage "relative filename"
-  const directory = dirname(fileURLToPath(import.meta.url));
+  const directory = __dirname;
   const filepath = directory+'/'+schemaFilename;
   return filepath;
 }
@@ -21,7 +21,7 @@ function getTestSuiteSchema(filepath) {
   return schema;
 }
 
-export default class SpectralTestValidator {
+class SpectralTestValidator {
   constructor() {
     this.formats = [];
     for (const [formatName, schemaFilename] of Object.entries(SCHEMAS)) {
@@ -63,3 +63,5 @@ const document = fileUtils.loadYaml('./tests/specifications/openapi/info-contact
 const problems = validator.validate(document);
 console.log('problems', problems);
 */
+
+exports.SpectralTestValidator = SpectralTestValidator;

@@ -1,23 +1,23 @@
-import {resolve} from 'path';
+const resolve = require('path').resolve;
 // Spectral
-import spectralCore from "@stoplight/spectral-core";
+const spectralCore = require('@stoplight/spectral-core');
 const { Spectral, Document } = spectralCore;
-import { bundleAndLoadRuleset } from "@stoplight/spectral-ruleset-bundler/with-loader";
-import fs from 'fs';
-import spectralRuntime from "@stoplight/spectral-runtime";
+const { bundleAndLoadRuleset } = require('@stoplight/spectral-ruleset-bundler/with-loader');
+const fs = require('fs');
+const spectralRuntime  = require('@stoplight/spectral-runtime');
 const { fetch } = spectralRuntime;
-import Parsers from "@stoplight/spectral-parsers"; // make sure to install the package if you intend to use default parsers!
+const Parsers = require('@stoplight/spectral-parsers'); // make sure to install the package if you intend to use default parsers!
 
 
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
+const { dirname } = require('path');
+const { fileURLToPath } = require('url');
 
 
 function getRulesetFilename(format) {
   const formats = {
     openapi: 'test-document-validator-openapi.yaml'
   }
-  const directory = dirname(fileURLToPath(import.meta.url));
+  const directory = __dirname;
   const filename = directory+'/'+formats[format];
   return filename;
 }
@@ -58,7 +58,7 @@ function getSpectralDocument(json, name) {
   }
 
 
-export default class DocumentValidator {
+class DocumentValidator {
 
   constructor() {}
 
@@ -83,6 +83,8 @@ export default class DocumentValidator {
   }
 
 }
+
+exports.DocumentValidator = DocumentValidator;
 
 /*
 const document = {

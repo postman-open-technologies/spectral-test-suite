@@ -1,8 +1,8 @@
-import assert from 'assert';
-import SpectralTestLoader from './spectral-test-loader.js';
-import SpectralTestWrapper from './spectral-test-wrapper.js';
-import DocumentValidator from './test-document-validator.js';
-import * as SpectralTest from './spectral-test.js';
+const assert = require('assert');
+const SpectralTestLoader = require('./spectral-test-loader.js').SpectralTestLoader;
+const SpectralTestWrapper = require('./spectral-test-wrapper.js').SpectralTestWrapper;
+const SpectralTest = require('./spectral-test.js');
+const DocumentValidator = require('./test-document-validator.js').DocumentValidator;
 
 function sortAgainstPath(values){
   return values.sort((a,b) => {
@@ -21,7 +21,7 @@ function sortAgainstPath(values){
 }
 
 
-export function runTests(tests, rulesets, title){
+function runTests(tests, rulesets, title){
 
   describe(`Testing [${title}] rulesets [${rulesets}] with tests [${tests}]`, function() {
     // 1 - Loading test and rule files and mapping them
@@ -174,3 +174,5 @@ export function runTests(tests, rulesets, title){
     });
   });
 }
+
+exports.runTests = runTests;
