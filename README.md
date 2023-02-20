@@ -14,3 +14,9 @@ This project aims to help you ensure your Spectral rules are working as intendin
 
 - A JSON schema of the test file format can be found in [`src/tests/spectral-test-validator-schemas/spectral-test-v10.json-schema.yaml`](src/tests/spectral-test-validator-schemas/spectral-test-v10.json-schema.yaml).
 - It can contains tests for a single or multiple rules of a ruleset file.
+
+# How to add dependency to project
+
+```
+npm install --save-dev postman-open-technologies/spectral-test-suite#caf58f2434be7c142ccfde51efbda17398ca6f18
+```
