@@ -1,0 +1,36 @@
+{
+  "name": "spectral-test-suite",
+  "version": "0.0.1",
+  "description": "Spectral test framework",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "samples-test-demo": "npx mocha samples/samples.test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/postman-open-technologies/spectral-test-suite.git"
+  },
+  "keywords": [
+    "spectral",
+    "test"
+  ],
+  "author": "Arnaud Lauret",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/postman-open-technologies/spectral-test-suite/issues"
+  },
+  "homepage": "https://github.com/postman-open-technologies/spectral-test-suite#readme",
+  "dependencies": {
+    "@stoplight/spectral-core": "^1.16.1",
+    "@stoplight/spectral-functions": "^1.7.2",
+    "@stoplight/spectral-parsers": "^1.0.2",
+    "@stoplight/spectral-ruleset-bundler": "^1.5.0",
+    "@stoplight/spectral-runtime": "^1.1.2",
+    "glob": "^8.1.0",
+    "js-yaml": "^4.1.0",
+    "jsonpath-plus": "^7.2.0",
+    "mocha": "^10.2.0"
+  }
+}
