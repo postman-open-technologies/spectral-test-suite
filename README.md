@@ -23,7 +23,7 @@ npm install --save-dev postman-open-technologies/spectral-test-suite#<commit id 
 For example:
 
 ```
-npm install --save-dev postman-open-technologies/spectral-test-suite#caf58f2434be7c142ccfde51efbda17398ca6f18
+npm install --save-dev postman-open-technologies/spectral-test-suite#1dc5c011cd88099c9f503fba64c213393652327b
 ```
 
 ```
