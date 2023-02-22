@@ -1,17 +1,18 @@
 const SpectralTestRunner = require('../src/index.js').SpectralTestRunner;
 
 // TODO run test for a specific rule only
-// Optional --rule=a-rule-name parameter to test only one rule instead of all
-//const rule = process.env.npm_config_rule; 
+//const rule = 'a-rule'; 
 
-// const rulesets =  '**/*.spectral-v6.yaml'
-// const rulesets = process.env.npm_config_rulesets; 
+// Ruleset file pattern (optional)
 const rulesets = './samples/**/*.spectral-v6.yaml';
+// set to undefined to disable "do all rulesets file are tested" check
+// const rulesets = undefined;
 
-//const tests = '**/*.spectral-test.yaml'
-//const tests = process.env.npm_config_tests; 
-const tests = 'samples/**/*.spectral-test.yaml';
+// Test file pattern
+const tests = './samples/**/*.spectral-test.yaml';
 
-const title = 'Validating Spectral Rules'
+// Title of the main mocha describe (optional)
+const title = 'Validating Sample Spectral Rulesets';
+// const title = undefined
 
 SpectralTestRunner.runTests(tests, rulesets, title);

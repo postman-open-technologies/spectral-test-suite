@@ -2,6 +2,8 @@ const Ajv2020 = require('ajv/dist/2020.js');
 const fileUtils = require('./file.js');
 const dirname = require('path').dirname;
 const fileURLToPath = require('url').fileURLToPath;
+const path = require('path');
+const fs = require('fs');
 
 const DEFAULT_FORMAT = 'spectral-v1.0';
 const SCHEMAS = {
@@ -21,7 +23,33 @@ function getTestSuiteSchema(filepath) {
   return schema;
 }
 
-class SpectralTestValidator {
+function getRulesetAbsoluteFilename(documentFilename, document){
+  const documentDirname = path.dirname(documentFilename);
+  let rulesetFilename;
+  if(path.isAbsolute(document.ruleset)) {
+    rulesetFilename = document.ruleset;
+  }
+  else {
+    rulesetFilename = path.join(documentDirname, document.ruleset);
+  }
+  rulesetFilename = path.resolve(rulesetFilename);
+  return rulesetFilename;
+}
+
+function checkRulesetExist(documentFilename, document){
+  const rulesetFilename = getRulesetAbsoluteFilename(documentFilename, document);
+  return fs.existsSync(rulesetFilename);
+}
+
+class SpectralTestValidatorError extends Error {
+  constructor(message, schemaProblems, rulesetNotFoundProblem){
+    super(message);
+    this.schemaProblems = schemaProblems;
+    this.rulesetNotFoundProblem = rulesetNotFoundProblem;
+  }
+}
+
+class SpectralTestDocumentValidator {
   constructor() {
     this.formats = [];
     for (const [formatName, schemaFilename] of Object.entries(SCHEMAS)) {
@@ -39,7 +67,7 @@ class SpectralTestValidator {
   }
 
   // TODO warning will not support concurrency, do compilation each time? Clone errors?
-  validate(document) {
+  validateSchema(document) {
     let formatName = document.testSuiteVersion;
     if(formatName === undefined) {
       formatName = DEFAULT_FORMAT
@@ -55,6 +83,76 @@ class SpectralTestValidator {
     }
     return problems;
   }
+
+  validateRulesetExists(documentFilename, document) {
+    const valid = checkRulesetExist(documentFilename, document)
+    let problem;
+    if(!valid){
+      problem =  {
+        rulesetNotFound: getRulesetAbsoluteFilename(documentFilename, document) 
+      }
+    }
+    return problem;
+  }
+
+  validate(documentFilename, document) {
+    const schemaProblems = this.validateSchema(document);
+    const rulesetNotFoundProblem = this.validateRulesetExists(documentFilename, document);
+    let message;
+    if(schemaProblems.length > 0 || rulesetNotFoundProblem !== undefined){
+      if(schemaProblems.length > 0 && rulesetNotFoundProblem !== undefined){
+        message = 'Test document is not valid against schema and targets non-existing ruleset';
+      }
+      else if(schemaProblems.length > 0){
+        message = 'Test document is not valid against schema';
+      }
+      else {
+        message = 'Test document targets non-existing ruleset';
+      }
+      throw new SpectralTestValidatorError(message, schemaProblems, rulesetNotFoundProblem);
+    }
+  }
+}
+
+class SpectralTestDocument {
+  constructor(documentFilename){
+    const document = fileUtils.loadYaml(documentFilename);
+    const schemaValidatorInstance = new SpectralTestDocumentValidator();
+    this.error = undefined;
+    try {
+      schemaValidatorInstance.validate(documentFilename, document);
+    }
+    catch(error){
+      this.error = {
+        message: error.message,
+        schemaProblems: error.schemaProblems,
+        rulesetNotFoundProblem: error.rulesetNotFoundProblem
+      };
+    }
+    this.document = document;
+    this.filename = documentFilename;
+    this.rulesetFilename = getRulesetAbsoluteFilename(this.filename, this.document);
+  }
+
+  isValid(){
+    return this.error === undefined;
+  }
+
+  hasInvalidSchema(){
+    let result = false;
+    if(!this.isValid()){
+      result = this.error.schemaProblems !== undefined && this.error.schemaProblems.length > 0;
+    }
+    return result;
+  }
+
+  targetsNonExistingRuleset(){
+    let result = false;
+    if(!this.isValid()){
+      result = (this.error.rulesetNotFoundProblem !== undefined);
+    }
+    return result;
+  }
 }
 
 /*
@@ -64,4 +162,5 @@ const problems = validator.validate(document);
 console.log('problems', problems);
 */
 
-exports.SpectralTestValidator = SpectralTestValidator;
+//exports.SpectralTestDocumentValidator = SpectralTestDocumentValidator;
+exports.SpectralTestDocument = SpectralTestDocument;

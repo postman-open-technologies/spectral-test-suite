@@ -7,7 +7,7 @@ This project aims to help you ensure your Spectral rules are working as intendin
 
 # Demo
 
-- Run `npm run samples-test-demo` (the "must find a test suite for each ruleset" and "all rules of ruleset must have tests" are expected, they're to demonstrate how the framework can detect missing tests for rulesets or rules inside ruleset).
+- Run `npm run samples-test-demo` (the "must find no test invalid against schema", "must find no test targeting non-existing ruleset files", "must not find ruleset not targeted by any test", and "all rules of ruleset must have tests" are expected, they're here to demonstrate how the framework works).
 - Check the [`samples`](samples) folder for an example of test runner ([`samples.test.js`](samples/samples.test.js)) and test file ([`tests/info-contact.spectral-test.yaml`](samples/tests/info-contact.spectral-test.yaml)).
 
 # About the test file format
@@ -18,5 +18,14 @@ This project aims to help you ensure your Spectral rules are working as intendin
 # How to add dependency to project
 
 ```
+npm install --save-dev postman-open-technologies/spectral-test-suite#<commit id or tag>
+```
+For example:
+
+```
 npm install --save-dev postman-open-technologies/spectral-test-suite#caf58f2434be7c142ccfde51efbda17398ca6f18
+```
+
+```
+npm install --save-dev postman-open-technologies/spectral-test-suite#latest
 ```
