@@ -1,128 +1,131 @@
 const FileUtils = require('./file.js');
-const {SpectralTestValidator} = require('./spectral-test-validator.js');
-const path = require('path');
+const {SpectralTestDocument} = require('./spectral-test-validator.js');
 
-function mapTestsAndRulesets(testFilenames, rulesetFilenames){
-  
-  const validator = new SpectralTestValidator();
-  
-  const results = {
-    runnableTests: [],
-    withoutTestRulesets: [],
-    withoutRulesetTests: [],
-    invalidTests: []
-  }
-  
-  // List telling which test file exist for which ruleset file
-  const rulesetVsTests = rulesetFilenames.map( filename => { return { rulesetFilename: filename, testFilenames: [], test: null } });
-  // Looping on test files
+function loadTests(testFilenames) {
+  const results = [];
   testFilenames.forEach(testFilename => {
-    // Loading and validating test file against the JSON schema
-    const test = FileUtils.loadYaml(testFilename);
-    const testValidatorProblems = validator.validate(test);
-    // Test file is not valid against schema
-    if(testValidatorProblems.length > 0){
-      results.invalidTests.push({
-        testFilename: testFilename,
-        problems: testValidatorProblems
-      })
-    }
-    // Test file is loaded and valid against schema
-    else {
-      // Looking for matching ruleset
-      const testDirname = path.dirname(testFilename);
-      let rulesetFilename;
-      if(path.isAbsolute(test.ruleset)) {
-        rulesetFilename = test.ruleset;
-      }
-      else {
-        rulesetFilename = path.join(testDirname, test.ruleset);
-      }
-      rulesetFilename = path.resolve(rulesetFilename);
-      
-      const rulesetVsTest = rulesetVsTests.find(item => item.rulesetFilename === rulesetFilename);
-      if(rulesetVsTest){
-        // Merging tests from different test files targeting the same ruleset
-        // TODO manage duplicate tests (same rule of a ruleset tested in different files)
-        if(rulesetVsTest.test === null){
-          rulesetVsTest.test = test;  
-        }
-        else {
-          rulesetVsTest.test.rules = {
-            ...rulesetVsTest.test.rules,
-            ...test.rules
-          }
-        }
-        // Logging test filename
-        rulesetVsTest.testFilenames.push(testFilename);
-      }
-      // No ruleset found, this test file targets a non existing ruleset file
-      else {
-        results.withoutRulesetTests.push({
-          testFilename: testFilename,
-          testRuleset: rulesetFilename,
-        });
-      }
-    }
+      const spectralTestDocument = new SpectralTestDocument(testFilename);
+      results.push(spectralTestDocument); 
   });
-  rulesetVsTests.forEach(item => {
-    // Listing rulesets without any test
-    if(item.test === null){
-      results.withoutTestRulesets.push({rulesetFilename: item.rulesetFilename});
+  return results;
+}
+
+function getValidTests(loadedTests){
+  return loadedTests.filter(loadedTest => loadedTest.isValid());
+}
+
+function getInvalidSchemaTests(loadedTests){
+  return loadedTests.filter(loadedTest => loadedTest.hasInvalidSchema())
+    .map( test => { return { filename: test.filename, error: test.error} });
+}
+
+function getTargetingNonExistingRulesetTests(loadedTests){
+  return loadedTests.filter(loadedTest => loadedTest.targetsNonExistingRuleset())
+    .map( test => { return { filename: test.filename, error: test.error} });
+}
+
+// Aggregating tests by rulesey file because 
+// different test documents can target the same ruleset
+function aggregateRunnableTests(loadedTests) {
+  let results = [];
+  let validTests = getValidTests(loadedTests);
+  validTests.forEach(validTest => {
+    let aggregatedRunnableTest = results.find(item => item.rulesetFilename === validTest.rulesetFilename);
+    if(aggregatedRunnableTest === undefined){
+      aggregatedRunnableTest = { 
+        rulesetFilename: validTest.rulesetFilename, 
+        testFilenames: [], 
+        test: validTest.document // we'll aggregate tests.rules inside a single test.rules here
+      };
+      results.push(aggregatedRunnableTest);
     }
-    // Runnable tests
     else {
-      // Adding test to runnable test list
-      /*results.runnableTests.push({
-        rulesetFilename: rulesetVsTest.rulesetFilename,
-        testFilename: testFilename,
-        test: test
-      });*/
-      results.runnableTests.push(item);
+      aggregatedRunnableTest.test.rules = {
+        ...aggregatedRunnableTest.test.rules,
+        ...validTest.document.rules
+      }
+    }
+    aggregatedRunnableTest.testFilenames.push(validTest.filename);
+  });
+  return results;
+}
+
+function getTargetedByNoTestRulesets(loadedTests, rulesetFilenames) {
+  const results = [];
+  rulesetFilenames.forEach(rulesetFilename => {
+    const testFound = loadedTests.find(loadedTest => loadedTest.rulesetFilename === rulesetFilename);
+    if(testFound === undefined){
+      results.push({rulesetFilename: rulesetFilename});
     }
   });
   return results;
 }
 
-class SpectralTestLoader {
+function mapTestsAndRulesets(testFilenames, rulesetFilenames){
+  const tests = loadTests(testFilenames);
+  const results = {
+    aggregateRunnableTests: aggregateRunnableTests(tests),
+    targetedByNoTestRulesets: getTargetedByNoTestRulesets(tests, rulesetFilenames),
+    targetingNonExistingRulesetTests: getTargetingNonExistingRulesetTests(tests),
+    invalidSchemaTests: getInvalidSchemaTests(tests)
+  }
+  return results;
+}
 
-  constructor(testFilenamePattern, rulesetFilenamePattern) {
+class SpectralTestLoader {
+  // rulesetFilenamePattern is optional
+  constructor(testFilenamePattern, rulesetFilenamePattern = undefined) {
     this.testFilenamePattern = testFilenamePattern;
     this.rulesetFilenamePattern = rulesetFilenamePattern;
     this.testFilenames = FileUtils.listFiles(testFilenamePattern);
-    this.rulesetFilenames = FileUtils.listFiles(rulesetFilenamePattern);  
+    if(rulesetFilenamePattern !== undefined){
+      this.rulesetFilenames = FileUtils.listFiles(rulesetFilenamePattern);
+    }
+    else {
+      this.rulesetFilenames = [];
+    }
     this.mapping = mapTestsAndRulesets(this.testFilenames, this.rulesetFilenames);
   }
-
-  getRunnableTests() {
-    return this.mapping.runnableTests;
+  // TODO change unclear method names here and where they are used
+  // Valid tests aggregated by targeted ruleset
+  getAggregateRunnableTests() {
+    return this.mapping.aggregateRunnableTests;
   }
 
-  getWithoutTestRulesets(){
-    return this.mapping.withoutTestRulesets;
+  // Tests targeting non existing ruleset
+  getTargetingNonExistingRulesetTests(){
+    return this.mapping.targetingNonExistingRulesetTests;
   }
 
-  getWithoutRulesetTests(){
-    return this.mapping.withoutRulesetTests;
+  // Rulesets targeted by no tests
+  getTargetedByNoTestRulesets(){
+    if(this.getTargetedByNoTestRulesets)
+    return this.mapping.targetedByNoTestRulesets;
   }
 
-  getInvalidTests() {
-    return this.mapping.invalidTests;
+  // Tests wth invalid schema
+  getInvalidSchemaTests() {
+    return this.mapping.invalidSchemaTests;
+  }
+
+  isTargetedByNoTestRulesetsDisabled(){
+    return this.rulesetFilenamePattern === undefined;
   }
 
 }
 
-
-//const tests = '**/*.rule-test.yaml';
-//const rulesets = '**/*.spectral-v6.yaml';
-//const tests = './specifications/openapi/sources/refining-rules/**/*.rule-test.yaml';
-//const rulesets = './specifications/openapi/sources/refining-rules/**/*.spectral-v6.yaml';
+// TODO put that in some tests
+// const tests = './samples/**/*.spectral-test.yaml';
+//const rulesets = './samples/**/*.spectral-v6.yaml';
+// const rulesets = undefined;
 /*
 const loader = new SpectralTestLoader(tests, rulesets);
-console.log('runnable tests', loader.getRunnableTests());
-console.log('tests without rulesets', loader.getWithoutRulesetTests());
-console.log('rulesets without tests', loader.getWithoutTestRulesets());
-console.log('invalid tests', loader.getInvalidTests());
+console.log('Valid tests aggregated by targeted ruleset', loader.getAggregateRunnableTests());
+console.log();
+console.log('Tests wth invalid schema', loader.getInvalidSchemaTests());
+console.log();
+console.log('Tests targeting non existing ruleset', loader.getTargetingNonExistingRulesetTests());
+console.log();
+console.log('Rulesets targeted by no tests', loader.getTargetedByNoTestRulesets());
 */
-
 exports.SpectralTestLoader = SpectralTestLoader;

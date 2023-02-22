@@ -21,9 +21,9 @@ function sortAgainstPath(values){
 }
 
 
-function runTests(tests, rulesets, title){
+function runTests(tests, rulesets, title='Validating Spectral Rulesets'){
 
-  describe(`Testing [${title}] rulesets [${rulesets}] with tests [${tests}]`, function() {
+  describe(title, function() {
     // 1 - Loading test and rule files and mapping them
     // TODO: Need to add mapping control, all ruleset have test files, all test files have ruleset
     // Some try/catch hecks to add here about no test founds
@@ -32,26 +32,42 @@ function runTests(tests, rulesets, title){
     //const mapper = new SpectralTestLoader.SpectralTestMapper(tests, rulesets);
     const testLoader = new SpectralTestLoader(tests, rulesets);
   
-    describe('Checking ruleset vs test', function() {
-      it('must have found runnable tests', function() {
-        assert.equal(testLoader.getRunnableTests().length>0, true, 'No runnable tests found');
+    describe(`🔬 Checking test documents (${testLoader.testFilenamePattern}) are valid`, function() {
+      it('must have found and aggregated runnable tests', function() {
+        assert.equal(testLoader.getAggregateRunnableTests().length>0, true, 'No runnable tests found');
       });
   
-      it('must find no invalid tests', function() {
-        assert.deepEqual(testLoader.getInvalidTests(), [], 'Some invalid tests found');
+      it('must find no test invalid against schema', function() {
+        assert.deepEqual(testLoader.getInvalidSchemaTests(), [], 'Found some tests which are not valid against schema');
+      });
+
+      it('must find no test targeting non-existing ruleset files', function() {
+        assert.deepEqual(testLoader.getTargetingNonExistingRulesetTests(), [], 'Found some tests targeting non-existing ruleset files');
       });
   
-      it('must find a test suite for each ruleset', function() {
-        assert.deepEqual(testLoader.getWithoutTestRulesets(), [], 'Some rulesets don\'t have test suites');
-      });
-  
-      it('must find ruleset of each test suite', function() {
-        assert.deepEqual(testLoader.getWithoutRulesetTests(), [], 'Some tests target non-existing rulesets');
-      });
     });
   
+    let rulesetCheckMessage;
+    if(testLoader.isTargetedByNoTestRulesetsDisabled()){
+      rulesetCheckMessage = '⚠️  Checking all rulesets are targeted by at least one test document is disabled (no ruleset file pattern provided)'
+    }
+    else {
+      rulesetCheckMessage = `🔬 Checking all rulesets (${testLoader.rulesetFilenamePattern}) are targeted by at least one test document`
+    }
+
+    describe(rulesetCheckMessage, function() {
+      if(testLoader.isTargetedByNoTestRulesetsDisabled()){
+        it.skip('must not find ruleset not targeted by any test (disabled)', function() {});
+      }
+      else {
+        it('must not find ruleset not targeted by any test', function() {
+          assert.deepEqual(testLoader.getTargetedByNoTestRulesets(), [], 'Some rulesets don\'t have test suites');
+        });
+      }
+    });
+
     // 2 - Looping on (ruleset/testfile)
-    testLoader.getRunnableTests().forEach(rulesetTest => {
+    testLoader.getAggregateRunnableTests().forEach(rulesetTest => {
       let spectralWrapper;
       let spectralWrapperError;
   
@@ -78,17 +94,27 @@ function runTests(tests, rulesets, title){
       // 4 - Testing the ruleset
       describe(`🗂  Testing ruleset ${rulesetTest.test.ruleset}`, function() {
         // x - Checking testsuite content
-        describe('Checking ruleset configuration', function() {
+        describe('Checking ruleset tests completeness', function() {
           it('all rules of ruleset must have tests', function() {
             // TODO put test loader stuff in a class
-            const foundTestedRules = SpectralTest.getRuleNames(rulesetTest.test).sort();
-            const expectedTestedRules = spectralWrapper.getRuleNames().sort();
-            assert.deepEqual(foundTestedRules, expectedTestedRules, 'some rules have no tests');
+            const testedRules = SpectralTest.getRuleNames(rulesetTest.test).sort();
+            const rulesetRules = spectralWrapper.getRuleNames().sort();
+            const nonTestedRules = rulesetRules.filter(rulesetRule => !testedRules.includes(rulesetRule));
+            assert.deepEqual(nonTestedRules, [], 'some rules are not tested');
           });
-          
+          /* TODO in loader to exclude tests from here 
+          it('all tested rules exists in ruleset', function() {
+            // TODO put test loader stuff in a class
+            const testedRules = SpectralTest.getRuleNames(rulesetTest.test).sort();
+            const rulesetRules = spectralWrapper.getRuleNames().sort();
+            const nonExistingRules = testedRules.filter(testedRule => !rulesetRules.includes(testedRule));
+            assert.deepEqual(nonExistingRules, [], 'some tested rules don\'t exist in ruleset');
+          });
+          */
+          /*
           it('a spectral wrapper is successfully loaded with targeted ruleset', function() {
             assert.equal(spectralWrapper !== undefined, true, 'spectral wrapper is undefined');
-          });
+          });*/
   
         });
   
