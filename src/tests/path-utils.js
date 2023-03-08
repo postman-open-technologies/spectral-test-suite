@@ -43,7 +43,7 @@ function givenExpectedToSpectralPaths(givenExpected){
 
 function debuggerGivenResultToSpectralPaths(debuggerGivenResult){
   let paths = [];
-  debuggerGivenResult.given.forEach(givenItem => {
+  debuggerGivenResult.given.forEach(ruleResult => {
     givenItem.paths.forEach(path => {
       paths.push(path.path);
     })

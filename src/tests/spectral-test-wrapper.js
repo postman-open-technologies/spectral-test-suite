@@ -99,10 +99,10 @@ class SpectralTestWrapper {
   }
 
   async getGivenPaths(rulename, document) {
-    const runGivenResults = await spectralDebugger.runGivens(document, this.rulesetRaw);
+    const runGivenResults = await spectralDebugger.debugGiven(this.rulesetLoaded, document);
     // TODO disable all rules expect the one to test
     const ruleResult = runGivenResults.find( result => result.rule === rulename);
-    const paths = pathUtils.debuggerGivenResultToSpectralPaths(ruleResult);
+    const paths = ruleResult.paths.map( item => {return item.path});
     return paths;
   }
 

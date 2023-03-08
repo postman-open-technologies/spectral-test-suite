@@ -157,8 +157,9 @@ function runTests(tests, rulesets, title='Validating Spectral Rulesets'){
                     assert.deepEqual(formatFoundProblems, formatExpectedProblems, `test document is not a valid ${ruleTest.format} document`);
   
                     // 8.2 Checking what is found by given paths (JSON Path or aliases or aliases+JSON path)
-                    const foundPaths = await spectralWrapper.getGivenPaths(rulename, rulename, document.document);
+                    const foundPaths = await spectralWrapper.getGivenPaths(rulename, document.document);
                     foundPaths.sort();
+
                     const expectedPaths = pathUtils.givenExpectedToSpectralPaths(givenTest.expected).sort();
                     assert.deepEqual(foundPaths, expectedPaths, 'found paths do not match expected ones');
                   })  
