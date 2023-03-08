@@ -2,6 +2,7 @@ const assert = require('assert');
 const SpectralTestLoader = require('./spectral-test-loader.js').SpectralTestLoader;
 const SpectralTestWrapper = require('./spectral-test-wrapper.js').SpectralTestWrapper;
 const SpectralTest = require('./spectral-test.js');
+const pathUtils = require('./path-utils');
 const DocumentValidator = require('./test-document-validator.js').DocumentValidator;
 
 function sortAgainstPath(values){
@@ -155,19 +156,11 @@ function runTests(tests, rulesets, title='Validating Spectral Rulesets'){
                     const formatExpectedProblems = [];
                     assert.deepEqual(formatFoundProblems, formatExpectedProblems, `test document is not a valid ${ruleTest.format} document`);
   
-                    // 8.2 Checking what is found by path
-                    // TODO work on "list problems that are not found => expect empty list"
-                    // TODO rework the given index stuff, test across all given option? always? stop at first that works?
-                    // TODO manage given using aliases (hack Spectral core?): given with aliases test are skipped for now
-                    if(!spectralWrapper.getRuleGiven(rulename, givenTest.index).startsWith('#')){
-                      const foundPathsAndValues = sortAgainstPath(spectralWrapper.getGivenPathsAndValues(rulename, document.document, givenTest.index));
-                      const expectedPathsAndValues = sortAgainstPath(givenTest.expected);
-                      // TODO split assert and add message
-                      assert.deepEqual(foundPathsAndValues, expectedPathsAndValues);  
-                    }
-                    else {
-                      this.skip();
-                    }
+                    // 8.2 Checking what is found by given paths (JSON Path or aliases or aliases+JSON path)
+                    const foundPaths = await spectralWrapper.getGivenPaths(rulename, rulename, document.document);
+                    foundPaths.sort();
+                    const expectedPaths = pathUtils.givenExpectedToSpectralPaths(givenTest.expected).sort();
+                    assert.deepEqual(foundPaths, expectedPaths, 'found paths do not match expected ones');
                   })  
                 });
               });

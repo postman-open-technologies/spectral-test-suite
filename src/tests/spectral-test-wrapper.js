@@ -11,9 +11,12 @@ const { fetch } = spectralRuntime;
 const Parsers = require('@stoplight/spectral-parsers'); // make sure to install the package if you intend to use default parsers!
 
 // JSON Path Plus
-const JSONPath = require('jsonpath-plus').JSONPath;
+//const JSONPath = require('jsonpath-plus').JSONPath;
+// Now using pure Spectral instead of JSONPath to check what given paths find
+const spectralDebugger = require('./spectral-debugger');
+const pathUtils = require('./path-utils');
 // to load pure rule without parsing
-const fileUtils = require('./file.js');
+const fileUtils = require('./file');
 
 function spectralPathToJsonPointer(path){
   const escapedPath = path.map(value => value.replaceAll('/','~1'));
@@ -28,7 +31,8 @@ class SpectralTestWrapper {
   async initialize(rulesetFilename){
     this.absolutePath = resolve(rulesetFilename);
     this.rulesetRaw = fileUtils.loadYaml(this.absolutePath);
-    const ruleset = await bundleAndLoadRuleset(this.absolutePath, { fs, fetch })
+    const ruleset = await bundleAndLoadRuleset(this.absolutePath, { fs, fetch });
+    this.rulesetLoaded = ruleset;
     this.spectral = new Spectral();
     this.spectral.setRuleset(ruleset);
   }
@@ -92,7 +96,14 @@ class SpectralTestWrapper {
       });
       return pathsAndValues;
     }
+  }
 
+  async getGivenPaths(rulename, document) {
+    const runGivenResults = await spectralDebugger.runGivens(document, this.rulesetRaw);
+    // TODO disable all rules expect the one to test
+    const ruleResult = runGivenResults.find( result => result.rule === rulename);
+    const paths = pathUtils.debuggerGivenResultToSpectralPaths(ruleResult);
+    return paths;
   }
 
   /*******************/

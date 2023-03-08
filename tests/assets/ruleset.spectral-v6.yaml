@@ -1,0 +1,39 @@
+aliases:
+  ResponseContentDefinition:
+    targets:
+      - formats:
+          - oas2
+        given: 
+          - $.paths.*.*.responses.*
+      - formats:
+          - oas3
+        given: 
+          - $.paths.*.*.responses.*.content.*
+
+rules:
+  info-contact:
+    description: Ensures that all APIs have contact information.
+    message: API must have a contact information available.
+    given: $.info
+    severity: error
+    formats:
+      - oas2
+      - oas3
+    then:
+      field: contact
+      function: truthy
+
+  responses-examples-any:
+    description: Ensuring all responses have examples (OpenAPI 3, Swagger 2) or example (OpenAPI 3) defined.
+    message: All your responses need to have property examples (OpenAPI 3, Swagger 2) or example (OpenAPI 3) defined.
+    given: "#ResponseContentDefinition"
+    severity: warn
+    formats:
+      - oas2
+      - oas3
+    then:
+      function: xor
+      functionOptions:
+        properties:
+          - example
+          - examples

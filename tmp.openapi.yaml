@@ -1,0 +1,18 @@
+swagger: "2.0"
+
+info:
+  title: All get operations
+  version: '1.0'
+
+paths:
+  /resources:
+    get: 
+      summary: GET resources
+      parameters:
+        - name: body
+          in: body
+          schema:
+            type: object
+      responses:
+        '200':
+          description: GET resources OK response

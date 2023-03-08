@@ -123,13 +123,24 @@ $defs:
           $ref: "#/$defs/Document"
   GivenTestExpected:
     description: An expected element of the response of a given test. The value can be anything.
-    type: object
-    unevaluatedProperties: false
-    properties:
-      path:
-        $ref: "#/$defs/JsonPointer"
-      value: 
-        description: The value of the found element
+    oneOf:
+      - $ref: "#/$defs/JsonPointer"
+      - $ref: "#/$defs/SpectralPath"
+      - type: object
+        unevaluatedProperties: false
+        required:
+          - path
+        properties:
+          path:
+            oneOf:
+              - $ref: "#/$defs/JsonPointer"
+              - $ref: "#/$defs/SpectralPath"
+          description: 
+            description: Description of the expected path.
+            type: string
+          # Not needed anymore. Kept for temporary backward compatibility purpose
+          value: 
+            description: The value of the found element
   ThenTest:
     description: The description of a test checking the problems returned when executing this rule.
     type: object
@@ -178,6 +189,13 @@ $defs:
   JsonPointer:
     description: The [JSON Pointer](https://www.rfc-editor.org/rfc/rfc6901) targeting the found element.
     type: string
+    minLength: 1
+  SpectralPath:
+    description: The Spectral path targeting the found element (as returned by Spectral).
+    type: array
+    items:
+      type: string
+    minItems: 1
   DocumentTemplate:
     description: A document that will be used as template to find what is expected across the versions.
     type: object
