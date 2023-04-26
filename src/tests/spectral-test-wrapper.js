@@ -33,6 +33,12 @@ class SpectralTestWrapper {
     this.rulesetRaw = fileUtils.loadYaml(this.absolutePath);
     const ruleset = await bundleAndLoadRuleset(this.absolutePath, { fs, fetch });
     this.rulesetLoaded = ruleset;
+    // Enable non recommended rules
+    Object.keys(this.rulesetLoaded.rules).forEach(rulename => {
+      if(this.rulesetLoaded.rules[rulename].enabled === false){
+        this.rulesetLoaded.rules[rulename].enabled = true;
+      }
+    })
     this.spectral = new Spectral();
     this.spectral.setRuleset(ruleset);
   }
@@ -134,6 +140,15 @@ class SpectralTestWrapper {
   /* Severity */
   getRuleSeverity(rulename){
     return this.getRuleDefinition(rulename).severity;
+  }
+
+  /* Recommended */
+  getRuleRecommended(rulename){
+    let result = this.getRuleDefinition(rulename).recommended;
+    if(result === undefined){
+      result = true;
+    }
+    return result;
   }
 
   /* Format and Versions of spec targeted */

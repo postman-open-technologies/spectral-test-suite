@@ -89,6 +89,10 @@ $defs:
           - warn
           - info
           - hint
+      recommended:
+        description: Is the rule recommended (activated)?
+        type: boolean
+        default: true
       given:
         description: |
           The list of test checking the JSON Path Plus path(s) provided in given:
@@ -203,13 +207,16 @@ $defs:
           $ref: "#/$defs/Document"
   ThenTestExpected:
     description: The path of an expected problem detected when Spectal runs a rule.
-    type: object
-    unevaluatedProperties: false
-    required:
-      - path
-    properties:
-      path:
-        $ref: "#/$defs/JsonPointer"
+    oneOf:
+      - $ref: "#/$defs/JsonPointer"
+      - $ref: "#/$defs/SpectralPath"
+      - type: object
+        unevaluatedProperties: false
+        required:
+          - path
+        properties:
+          path:
+            $ref: "#/$defs/JsonPointer"
   JsonPointer:
     description: The [JSON Pointer](https://www.rfc-editor.org/rfc/rfc6901) targeting the found element.
     type: string

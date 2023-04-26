@@ -25,7 +25,7 @@ rules:
     then:
       - description: must return a problem if there's no contact property in info
         expected:
-          - path: "#/info"
+          - ['info']
         documentTemplate:
           asyncapi: "2.6.0"
           info:

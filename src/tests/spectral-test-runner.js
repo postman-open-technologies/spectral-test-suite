@@ -144,6 +144,11 @@ function runTests(tests, rulesets, title='Validating Spectral Rulesets'){
               const expectedSeverity = ruleTest.severity;
               assert.equal(foundSeverity, expectedSeverity);
             });
+            it(`must be recommended ${ruleTest.recommended}`, function() {
+              const foundRecommended = spectralWrapper.getRuleRecommended(rulename);
+              const expectedRecommended = ruleTest.recommended;
+              assert.equal(foundRecommended, expectedRecommended);
+            });
             // 8 - Testing given
             describe(`Testing rule ${rulename} given`, function() {
               ruleTest.given.forEach(givenTest => {
@@ -180,8 +185,10 @@ function runTests(tests, rulesets, title='Validating Spectral Rulesets'){
   
                     // 9.2 Checking expected problems are found by the rules
                     // TODO work on "list problems that are not found => expect empty list"
-                    const foundProblems = sortAgainstPath(await spectralWrapper.lint(rulename, document.document, thenTest.description));
-                    const expectedProblems = sortAgainstPath(thenTest.expected);
+                    //const foundProblems = sortAgainstPath(await spectralWrapper.lint(rulename, document.document, thenTest.description));
+                    const foundProblems = pathUtils.thenExpectedToSpectralPaths(await spectralWrapper.lint(rulename, document.document, thenTest.description)).sort();
+                    //const expectedProblems = sortAgainstPath(thenTest.expected);
+                    const expectedProblems = pathUtils.thenExpectedToSpectralPaths(thenTest.expected).sort();
                     // TODO split assert and add message
                     assert.deepEqual(foundProblems, expectedProblems);
                   });  

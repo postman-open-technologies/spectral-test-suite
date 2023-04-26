@@ -41,6 +41,21 @@ function givenExpectedToSpectralPaths(givenExpected){
   return givenExpected.map(item => givenExpectedItemToSpectralPath(item));
 }
 
+function thenExpectedItemToSpectralPath(thenExpectedItem){
+  let path;
+  if(thenExpectedItem.path !== undefined){
+    path = toSpectralPath(thenExpectedItem.path)
+  }
+  else {
+    path = toSpectralPath(thenExpectedItem)
+  }
+  return path;
+}
+
+function thenExpectedToSpectralPaths(thenExpected){
+  return thenExpected.map(item => thenExpectedItemToSpectralPath(item));
+}
+
 function debuggerGivenResultToSpectralPaths(debuggerGivenResult){
   let paths = [];
   debuggerGivenResult.given.forEach(ruleResult => {
@@ -57,3 +72,4 @@ exports.toSpectralPath = toSpectralPath;
 exports.givenExpectedItemToSpectralPath = givenExpectedItemToSpectralPath;
 exports.givenExpectedToSpectralPaths = givenExpectedToSpectralPaths;
 exports.debuggerGivenResultToSpectralPaths = debuggerGivenResultToSpectralPaths;
+exports.thenExpectedToSpectralPaths = thenExpectedToSpectralPaths;

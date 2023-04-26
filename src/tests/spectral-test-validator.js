@@ -130,6 +130,12 @@ class SpectralTestDocument {
       };
     }
     this.document = document;
+    Object.keys(this.document.rules).forEach(rulename => {
+      const ruleTest = this.document.rules[rulename];
+      if(ruleTest.recommended === undefined){
+        ruleTest.recommended = true;
+      }
+    });
     this.filename = documentFilename;
     this.rulesetFilename = getRulesetAbsoluteFilename(this.filename, this.document);
   }
