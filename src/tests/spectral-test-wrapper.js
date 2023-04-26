@@ -142,10 +142,20 @@ class SpectralTestWrapper {
     const rule = this.getRawRuleDefinition(rulename);
     //console.log(rule);
     const formats = {
+      // OpenAPI
       'oas2':   { format: 'openapi', versions: [ '2.0' ] },
       'oas3':   { format: 'openapi', versions: [ '3.0', '3.1' ]},
       'oas3_0': { format: 'openapi', versions: [ '3.0'] },
-      'oas3_1': { format: 'openapi', versions: [ '3.1' ]}
+      'oas3_1': { format: 'openapi', versions: [ '3.1' ]},
+      // AsyncAPI
+      'aas2':   { format: 'asyncapi', versions: [ '2.0', '2.1', '2.2', '2.2', '2.3', '2.4', '2.5', '2.6' ] },
+      'aas2_0': { format: 'asyncapi', versions: [ '2.0' ] },
+      'aas2_1': { format: 'asyncapi', versions: [ '2.1' ] },
+      'aas2_2': { format: 'asyncapi', versions: [ '2.2' ] },
+      'aas2_3': { format: 'asyncapi', versions: [ '2.3' ] },
+      'aas2_4': { format: 'asyncapi', versions: [ '2.4' ] },
+      'aas2_5': { format: 'asyncapi', versions: [ '2.5' ] },
+      'aas2_6': { format: 'asyncapi', versions: [ '2.6' ] },
     }
     let format;
     let versions = []

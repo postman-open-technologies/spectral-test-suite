@@ -39,6 +39,33 @@ $defs:
     description: Tests to validate a Spectral rule works as intended 
     type: object
     unevaluatedProperties: false
+    if:
+      properties:
+        format:
+          const: 'openapi'
+    then:
+      properties:
+        versions:
+          type: array
+          items:
+            enum:
+              - "2.0"
+              - "3.0"
+              - "3.1"
+    # asyncapi
+    else:
+      properties:
+        versions:
+          type: array
+          items:
+            enum:
+              - "2.0"
+              - "2.1"
+              - "2.2"
+              - "2.3"
+              - "2.4"
+              - "2.5"
+              - "2.6"
     properties:
       format:
         description: The format targeted by this rule
@@ -46,6 +73,7 @@ $defs:
         # TODO add asyncapi and jsonschema
         enum:
           - openapi
+          - asyncapi
       versions:
         description: The version of the format targeted by this rule
         # TODO conditional enum based on format
@@ -53,10 +81,6 @@ $defs:
         minItems: 1
         items:
           type: string
-          enum:
-            - "2.0"
-            - "3.0"
-            - "3.1"
       severity:
         description: The severity of the problems returned by the rule
         type: string

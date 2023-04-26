@@ -1,5 +1,0 @@
-rules:
-  test:
-    given: $..schema
-    then:
-      function: undefined

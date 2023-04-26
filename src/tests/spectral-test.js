@@ -1,4 +1,5 @@
-const OpenApiUtils = require('./openapi.js');
+//const OpenApiUtils = require('./openapi.js');
+const SpecificationsUtils = require('./specifications');
 
 // TODO Put test stuff and sub-elements into one or more classes in that file
 //export default class SpectralTest {
@@ -11,8 +12,8 @@ function getAllVersionsOfDocument(givenOrThenTest, ruleTest) {
     documents = [];
     ruleTest.versions.forEach(version => {
       documents.push({
-        version: OpenApiUtils.getShortVersionValue(version),
-        document: OpenApiUtils.getDocumentWithVersion(givenOrThenTest.documentTemplate, version)
+        version: SpecificationsUtils.getShortVersionValue(ruleTest.format, version),
+        document: SpecificationsUtils.getDocumentWithVersion(givenOrThenTest.documentTemplate, ruleTest.format, version)
       });
     });
   }

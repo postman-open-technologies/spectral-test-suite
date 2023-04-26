@@ -9,13 +9,10 @@ const { fetch } = spectralRuntime;
 const Parsers = require('@stoplight/spectral-parsers'); // make sure to install the package if you intend to use default parsers!
 
 
-const { dirname } = require('path');
-const { fileURLToPath } = require('url');
-
-
 function getRulesetFilename(format) {
   const formats = {
-    openapi: 'test-document-validator-openapi.yaml'
+    openapi: 'test-document-validator-openapi.yaml',
+    asyncapi: 'test-document-validator-asyncapi.yaml'
   }
   const directory = __dirname;
   const filename = directory+'/'+formats[format];
@@ -42,9 +39,7 @@ function isToBeFilteredProblem(problem){
 }
 
 function filterProblemList(problems, format) {
-  return problems.filter( problem => {
-    !isToBeFilteredProblem(problem)
-  });
+  return problems.filter( problem => !isToBeFilteredProblem(problem));
 }
   // TODO fix ugly copy/paste coming from wrapper
 function getSpectralDocument(json, name) {
@@ -79,26 +74,12 @@ class DocumentValidator {
   async validate(documentJson, documentName) {
     const document = getSpectralDocument(documentJson, documentName);
     const problems = await this.spectral.run(document);
-    return filterProblemList(problems);
+    const filteredProblems = filterProblemList(problems);
+    return filteredProblems;
   }
 
 }
 
+exports._isToBeFilteredProblem = isToBeFilteredProblem;
+exports._filterProblemList = filterProblemList;
 exports.DocumentValidator = DocumentValidator;
-
-/*
-const document = {
-  "openapi": "3.0.3",
-  "info": {
-    "title": "an api name",
-    "version": "1.0",
-    "contacte": {
-      "name": "a contact name"
-    }
-  },
-  "paths": {}
-}
-
-const validator = await DocumentValidator.getValidator('openapi');
-console.log(await validator.validate(document));
-*/

@@ -149,7 +149,7 @@ function runTests(tests, rulesets, title='Validating Spectral Rulesets'){
               ruleTest.given.forEach(givenTest => {
                 const documents = SpectralTest.getAllVersionsOfDocument(givenTest, ruleTest);
                 documents.forEach(document => {
-                  it(`${givenTest.description} (OpenAPI ${document.version})`, async function() {
+                  it(`${givenTest.description} (${ruleTest.format} ${document.version})`, async function() {
   
                     // 8.1 Checking test document is valid
                     const formatFoundProblems = await documentValidator.validate(document.document);
@@ -171,7 +171,7 @@ function runTests(tests, rulesets, title='Validating Spectral Rulesets'){
               ruleTest.then.forEach(thenTest => {
                 const documents = SpectralTest.getAllVersionsOfDocument(thenTest, ruleTest);
                 documents.forEach(document => {
-                  it(`${thenTest.description} (OpenAPI ${document.version})`, async function() {
+                  it(`${thenTest.description} (${ruleTest.format} ${document.version})`, async function() {
   
                     // 9.1 Checking test document is valid
                     const formatFoundProblems = await documentValidator.validate(document.document);
