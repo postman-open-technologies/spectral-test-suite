@@ -22,7 +22,7 @@ function sortAgainstPath(values){
 }
 
 
-function runTests(tests, rulesets, title='Validating Spectral Rulesets'){
+function runTests(tests, rulesets, title='Validating Spectral Rulesets', disableCompleteness=false){
 
   describe(title, function() {
     // 1 - Loading test and rule files and mapping them
@@ -95,28 +95,28 @@ function runTests(tests, rulesets, title='Validating Spectral Rulesets'){
       // 4 - Testing the ruleset
       describe(`🗂  Testing ruleset ${rulesetTest.test.ruleset}`, function() {
         // x - Checking testsuite content
-        describe('Checking ruleset tests completeness', function() {
-          it('all rules of ruleset must have tests', function() {
-            // TODO put test loader stuff in a class
-            const testedRules = SpectralTest.getRuleNames(rulesetTest.test).sort();
-            const rulesetRules = spectralWrapper.getRuleNames().sort();
-            const nonTestedRules = rulesetRules.filter(rulesetRule => !testedRules.includes(rulesetRule));
-            assert.deepEqual(nonTestedRules, [], 'some rules are not tested');
-          });
-          /* TODO in loader to exclude tests from here 
-          it('all tested rules exists in ruleset', function() {
-            // TODO put test loader stuff in a class
-            const testedRules = SpectralTest.getRuleNames(rulesetTest.test).sort();
-            const rulesetRules = spectralWrapper.getRuleNames().sort();
-            const nonExistingRules = testedRules.filter(testedRule => !rulesetRules.includes(testedRule));
-            assert.deepEqual(nonExistingRules, [], 'some tested rules don\'t exist in ruleset');
-          });
-          */
-          /*
-          it('a spectral wrapper is successfully loaded with targeted ruleset', function() {
-            assert.equal(spectralWrapper !== undefined, true, 'spectral wrapper is undefined');
-          });*/
-  
+        let rulesetCompletenessCheckMessage;
+        if(disableCompleteness){
+          rulesetCompletenessCheckMessage = '⚠️  Checking ruleset tests completeness disabled'
+        }
+        else {
+          rulesetCompletenessCheckMessage = '🔬 Checking ruleset tests completeness';
+        }
+        
+        describe(rulesetCompletenessCheckMessage, function() {
+          if(disableCompleteness){
+            it.skip('all rules of ruleset must have tests (disable)', function() {});
+          }
+          else {
+            it('all rules of ruleset must have tests', function() {
+              // TODO put test loader stuff in a class
+              const testedRules = SpectralTest.getRuleNames(rulesetTest.test).sort();
+              const rulesetRules = spectralWrapper.getRuleNames().sort();
+              const nonTestedRules = rulesetRules.filter(rulesetRule => !testedRules.includes(rulesetRule));
+              assert.deepEqual(nonTestedRules, [], 'some rules are not tested');
+            });
+          }
+
         });
   
         // 5 - Looping on rule test in ruleset test
