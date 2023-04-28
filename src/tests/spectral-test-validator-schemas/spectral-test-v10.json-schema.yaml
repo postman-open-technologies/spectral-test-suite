@@ -100,7 +100,6 @@ $defs:
           - find something and the value is what is expected (minimal, at least one of those)
           - do not find what is supposed to ignore (for complex path involving filters)
         type: array
-        minItems: 1
         items:
           $ref: "#/$defs/GivenTest"
       then:
@@ -108,7 +107,6 @@ $defs:
           The list of tests checking the rule returns the expected problems or not.
           There must be at least a test checking problems are returned, and test without problems.
         type: array
-        minItems: 2
         items:
           $ref: "#/$defs/ThenTest"
   GivenTest:

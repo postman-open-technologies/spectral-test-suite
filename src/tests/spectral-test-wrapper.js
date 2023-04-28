@@ -174,15 +174,16 @@ class SpectralTestWrapper {
     }
     let format;
     let versions = []
-    rule.formats.forEach(item => {
-      format = formats[item].format;
-      versions = Array.from(new Set(versions.concat(formats[item].versions))); 
-    });
+    if(rule.formats){
+      rule.formats.forEach(item => {
+        format = formats[item].format;
+        versions = Array.from(new Set(versions.concat(formats[item].versions))); 
+      });
+    }
     const result = {
       format: format,
       versions: versions
     };
-    //console.log(result);
     return result;
   }
 
