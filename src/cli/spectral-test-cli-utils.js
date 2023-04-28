@@ -20,6 +20,7 @@ function parseCommandLineArguments(commandLineArgs, defaultTitle, defaultTests, 
   let disableThenTest = false;
   let version = undefined;
   let silentSkip = false;
+  let format = undefined;
   commandLineArgs.forEach((arg, index, args) => {
     if(arg === '--tests'){
       tests = args[index+1];
@@ -52,6 +53,9 @@ function parseCommandLineArguments(commandLineArgs, defaultTitle, defaultTests, 
     else if(arg === '--rule'){
       rule = args[index+1];
     }
+    else if(arg === '--format'){
+      format = args[index+1];
+    }
     else if(arg === '--format-version'){
       version = args[index+1];
     }
@@ -75,9 +79,9 @@ function parseCommandLineArguments(commandLineArgs, defaultTitle, defaultTests, 
     title: title,
     rule: rule,
     version: version,
+    format: format,
     silentSkip: silentSkip
   }
-  console.log(result)
   return result;
 }
 

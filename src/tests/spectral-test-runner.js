@@ -33,14 +33,26 @@ const defaultConfiguration = {
   version: undefined
 }
 
+function configurationItemType(key){
+  let result = undefined;
+  const strings = ['version', 'format', 'rule']
+  if(key.startsWith('disable')){
+    result = 'boolean';
+  }
+  else if(strings.includes(key)){
+    result = 'string'
+  }
+  return result;
+}
+
 function skippedTests(configuration){
   let skipped = false;
   Object.keys(configuration).forEach( key => {
-    if(key.startsWith('disable')){
+    const confType = configurationItemType(key);
+    if(confType === 'boolean'){
       skipped = skipped || configuration[key];
-      console.log(key, configuration[key], skipped)
     }
-    else if(key === 'rule' || 'version') {
+    else if(confType === 'string') {
       skipped = skipped || (configuration[key] !== undefined);
     }
   })
@@ -153,7 +165,7 @@ function runTests(tests, rulesets, title='Validating Spectral Rulesets', configu
   
         // 5 - Looping on rule test in ruleset test
         for (const [rulename, ruleTest] of Object.entries(rulesetTest.test.rules)){
-          if(configuration.rule !== undefined && configuration.rule !== rulename){
+          if((configuration.rule !== undefined && configuration.rule !== rulename) || (configuration.format !== undefined && configuration.format !== ruleTest.format)){
             if(!configuration.silentSkip) {
               describe(`⚠️ Testing rule [${rulename}] disabled`, function() {});  
             }
@@ -277,7 +289,8 @@ function runTests(tests, rulesets, title='Validating Spectral Rulesets', configu
     if(skippedTests(configuration)){
       describe('⚠️  Some tests have been skipped silently', function() {
         Object.keys(configuration).forEach(key => {
-          if(key.startsWith('disable') || key === 'rule' || key === 'version'){
+          const confType = configurationItemType(key);
+          if(confType !== undefined){
             it(`${key}: ${configuration[key]}`, function() {});
           }
         });
