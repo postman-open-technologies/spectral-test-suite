@@ -9,6 +9,11 @@ function loadYaml(filename) {
   return data;
 }
 
+function saveJson(data, filename){
+  const content = JSON.stringify(data, null, 2);
+  fs.writeFileSync(filename, content, 'utf8');
+}
+
 function listFiles(pattern) {
   const paths = glob.sync(pattern);
   // Turning relative path in absolute ones
@@ -17,4 +22,5 @@ function listFiles(pattern) {
 }
 
 exports.loadYaml = loadYaml;
+exports.saveJson = saveJson;
 exports.listFiles = listFiles;

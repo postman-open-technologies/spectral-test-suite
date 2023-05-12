@@ -1,5 +1,5 @@
 const assert = require('assert');
-const testDocumentValidator = require('../../src/tests/test-document-validator');
+const testDocumentValidator = require('../../src/test-suite/test-document-validator');
 
 describe('test-document-validator', function() {
   describe('isToBeFilteredProblem', function() {

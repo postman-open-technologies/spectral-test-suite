@@ -13,15 +13,16 @@ description: |
 type: object
 unevaluatedProperties: false
 required:
-  - testSuiteVersion
+  - spectralTestSuite
   - ruleset
   - rules
 properties:
-  testSuiteVersion:
+  spectralTestSuite:
     description: The version of Spectral Ruleset Test Suite used
-    type: string
-    enum:
-      - spectral-v1.0
+    allOf:
+      - $ref: "#/$defs/VersionNumber"
+      - enum:
+        - "0.1"
   ruleset:
     description: |
       The relative or absolute filepath or url to the Spectral Ruleset file containing
@@ -35,52 +36,84 @@ properties:
     additionalProperties:
       $ref: "#/$defs/RuleTests"
 $defs:
+  VersionNumber:
+    type: string
+  OpenApiVersions:
+    type: array
+    default:
+      - "2.0"
+      - "3.0"
+      - "3.1"
+    items:
+      allOf:
+        - $ref: "#/$defs/VersionNumber"
+        - enum:
+          - "2.0"
+          - "3.0"
+          - "3.1"
+  AsyncApiVersions:
+    type: array
+    default: [ "2.0", "2.1", "2.2", "2.3", "2.4", "2.5", "2.6" ]
+    items:
+      allOf:
+        - $ref: "#/$defs/VersionNumber"
+        - enum: [ "2.0", "2.1", "2.2", "2.3", "2.4", "2.5", "2.6" ]
+  JsonSchemaVersions:
+    type: array
+    default: [ 2020-12 ] 
+    items:
+      allOf:
+        - $ref: "#/$defs/VersionNumber"
+        - enum: 
+          - $schema
+          - loose
+          - draft4
+          - draft6
+          - draft7
+          - 2019-09
+          - 2020-12
   RuleTests:
     description: Tests to validate a Spectral rule works as intended 
     type: object
     unevaluatedProperties: false
-    if:
-      properties:
-        format:
-          const: 'openapi'
-    then:
-      properties:
-        versions:
-          type: array
-          items:
-            enum:
-              - "2.0"
-              - "3.0"
-              - "3.1"
-    # asyncapi
-    else:
-      properties:
-        versions:
-          type: array
-          items:
-            enum:
-              - "2.0"
-              - "2.1"
-              - "2.2"
-              - "2.3"
-              - "2.4"
-              - "2.5"
-              - "2.6"
+    allOf:
+      - if:
+          properties:
+            format:
+              const: 'openapi'
+        then:
+          properties:
+            versions:
+              $ref: "#/$defs/OpenApiVersions"
+      - if:
+          properties:
+            format:
+              const: 'asyncapi'
+        then:
+          properties:
+            versions:
+              $ref: "#/$defs/AsyncApiVersions"
+      - if:
+          properties:
+            format:
+              const: 'jsonschema'
+        then:
+          properties:
+            versions:
+              $ref: "#/$defs/JsonSchemaVersions"
     properties:
       format:
         description: The format targeted by this rule
         type: string
-        # TODO add asyncapi and jsonschema
         enum:
           - openapi
           - asyncapi
+          - jsonschema
       versions:
         description: The version of the format targeted by this rule
-        # TODO conditional enum based on format
         type: array
         minItems: 1
-        items:
-          type: string
+        uniqueItems: true
       severity:
         description: The severity of the problems returned by the rule
         type: string
@@ -116,57 +149,18 @@ $defs:
     required:
       - description
       - expected
-    # documentTemplate and documents are mutually exclusive
-    dependentSchemas:
-      documentTemplate:
-        not:
-          required:
-            - documents
-    # a documentTemplate OR documents must be provided
-    oneOf:
-      - required: [documentTemplate]
-      - required: [documents]
+      - documents
     properties:
       description:
         description: The description of the test
         type: string
-      index:
-        description: The given index to test
-        default: 0
-        type: integer
-        minimum: 0
       expected:
         description: The expected result of the test. Hence, the values and their paths which are supposed to be found. 
         type: array
         items:
-          $ref: "#/$defs/GivenTestExpected"
-      documentTemplate:
-        $ref: "#/$defs/DocumentTemplate"
+          $ref: "#/$defs/SpectralPath"
       documents:
-        type: array
-        minItems: 1
-        items:
-          $ref: "#/$defs/Document"
-  GivenTestExpected:
-    description: An expected element of the response of a given test. The value can be anything.
-    oneOf:
-      - $ref: "#/$defs/JsonPointer"
-      - $ref: "#/$defs/SpectralPath"
-      - type: object
-        unevaluatedProperties: false
-        required:
-          - path
-        properties:
-          path:
-            oneOf:
-              - $ref: "#/$defs/JsonPointer"
-              - $ref: "#/$defs/SpectralPath"
-          description: 
-            description: Description of the expected path.
-            type: string
-          # Not needed anymore. Kept for temporary backward compatibility purpose
-          value: 
-            description: The value of the found element
+        $ref: "#/$defs/Documents"
   ThenTest:
     description: The description of a test checking the problems returned when executing this rule.
     type: object
@@ -174,73 +168,66 @@ $defs:
     required:
       - description
       - expected
-    # documentTemplate and documents are mutually exclusive
-    dependentSchemas:
-      documentTemplate:
-        not:
-          required:
-            - documents
-    # a documentTemplate OR documents must be provided
-    oneOf:
-      - required: [documentTemplate]
-      - required: [documents]
+      - documents
     properties:
       description:
         description: The description of the test
         type: string
       expected:
         description: |
-          The expected result of the test. Hence, the path of the problems detected.
-          Its value is an empty array if documentTemplate is valid. 
+          The expected result of the test. Hence, the Spectral paths of the problems detected.
+          Its value is an empty array if provided documents are valid. 
         type: array
         minItems: 0
         items:
-          $ref: "#/$defs/ThenTestExpected"
-      documentTemplate:
-          $ref: "#/$defs/DocumentTemplate"
+          $ref: "#/$defs/SpectralPath"
       documents:
-        type: array
-        minItems: 1
-        items:
-          $ref: "#/$defs/Document"
-  ThenTestExpected:
-    description: The path of an expected problem detected when Spectal runs a rule.
-    oneOf:
-      - $ref: "#/$defs/JsonPointer"
-      - $ref: "#/$defs/SpectralPath"
-      - type: object
-        unevaluatedProperties: false
-        required:
-          - path
-        properties:
-          path:
-            $ref: "#/$defs/JsonPointer"
-  JsonPointer:
-    description: The [JSON Pointer](https://www.rfc-editor.org/rfc/rfc6901) targeting the found element.
-    type: string
-    minLength: 1
+        $ref: "#/$defs/Documents"
   SpectralPath:
     description: The Spectral path targeting the found element (as returned by Spectral).
     type: array
     items:
-      type: string
+      oneOf:
+        - type: string
+        - type: integer
     minItems: 1
-  DocumentTemplate:
-    description: A document that will be used as template to find what is expected across the versions.
-    type: object
+  Documents:
+    description: A list of or a single test document
+    oneOf:
+      - $ref: "#/$defs/Document"
+      - type: array
+        minItems: 1
+        uniqueItems: true
+        items:
+          $ref: "#/$defs/Document"
   Document:
+    description: |
+      A document that will be used as template to find what is expected across the versions.
+      If no version is provided (direct specification document, or no `versions`` provided), 
+      the document is considered as a template, and documents matching rule test versions 
+      will be generated.
+    oneOf:
+      - $ref: "#/$defs/SpecificationDocument"
+      - type: object
+        required:
+          - document
+        unevaluatedProperties: false
+        properties:
+          versions:
+            description: The versions to use to generate the documents
+            oneOf:
+              - $ref: "#/$defs/VersionNumber"
+              - type: array
+                minItems: 1
+                uniqueItems: true
+                items:
+                  $ref: "#/$defs/VersionNumber"
+          document:
+            description: Will be used as a template if more than one versions are provided 
+            $ref: "#/$defs/SpecificationDocument"
+  SpecificationDocument:
     type: object
-    required: 
-      - version
-      - document
-    properties:
-      version:
-        description: The version of the formats targeted by this document
-        type: string
-        enum:
-          - "2.0"
-          - "3.0"
-          - "3.1"
-      document:
-        description: The document to use for the test
-        type: object
+    oneOf:
+      - required: [swagger]
+      - required: [openapi]
+      - required: [asyncapi]

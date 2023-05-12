@@ -1,10 +1,10 @@
 {
   "name": "spectral-test-suite",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Spectral test framework",
   "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "npx mocha tests/**/*.test.js",
     "samples-test-demo": "npx mocha samples/samples.test.js"
   },
   "repository": {
@@ -33,5 +33,6 @@
   },
   "devDependencies": {
     "mocha": "^10.2.0"
-  }
+  },
+  "bin": "npx mocha src/cli/runner.js"
 }

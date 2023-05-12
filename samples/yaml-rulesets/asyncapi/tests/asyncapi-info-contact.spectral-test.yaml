@@ -1,43 +1,44 @@
-testSuiteVersion: spectral-v1.0
-ruleset: ../rulesets/info-contact.spectral-v6.yaml
+spectralTestSuite: "0.1"
+ruleset: ../rulesets/asyncapi-info-contact.spectral-v6.yaml
 rules:
-  info-contact:  
-    format: openapi
+  asyncapi-info-contact:  
+    format: asyncapi
     versions:
       - "2.0"
-      - "3.0"
-      - "3.1"
+      - "2.1"
+      - "2.2"
+      - "2.3"
+      - "2.4"
+      - "2.5"
+      - "2.6"
     severity: error
     given:
       - description: must find the info object
         expected:
-          - path: "#/info"
-            value:
-              title: an api name
-              version: '1.0'
-        documentTemplate:
-          openapi: "3.1.0"
+          - ['info']
+        documents:
+          asyncapi: "2.6.0"
           info:
             title: an api name
             version: '1.0'
-          paths: {} 
+          channels: {} 
     then:
       - description: must return a problem if there's no contact property in info
         expected:
-          - path: "#/info"
-        documentTemplate:
-          openapi: "3.1.0"
+          - ['info']
+        documents:
+          asyncapi: "2.6.0"
           info:
             title: an api name
             version: '1.0'
-          paths: {}
+          channels: {}
       - description: must return no problem if there's contact property in info
         expected: []
-        documentTemplate:
-          openapi: "3.1.0"
+        documents:
+          asyncapi: "2.6.0"
           info:
             title: an api name
             version: '1.0'
             contact: 
               name: a contact name
-          paths: {} 
+          channels: {} 

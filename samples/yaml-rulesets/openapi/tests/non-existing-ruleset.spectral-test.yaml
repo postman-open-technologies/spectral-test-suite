@@ -1,44 +1,38 @@
-testSuiteVersion: spectral-v1.0
-ruleset: ../rulesets/info-contact.spectral-v6.yaml
-# type rule instead of rules
-rule:
+spectralTestSuite: "0.1"
+# Non existing ruleset
+ruleset: ../rulesets/non-existing.spectral-v6.yaml
+rules:
   info-contact:  
     format: openapi
-    versions:
-      - "2.0"
-      - "3.0"
-      - "3.1"
+    versions: [ "2.0", "3.0", "3.1" ]
     severity: error
     given:
       - description: must find the info object
         expected:
-          - path: "#/info"
-            value:
-              title: an api name
-              version: '1.0'
-        documentTemplate:
+          - [ info ]
+        documents:
           openapi: "3.1.0"
           info:
             title: an api name
-            version: '1.0'
+            version: "1.0"
           paths: {} 
     then:
       - description: must return a problem if there's no contact property in info
         expected:
-          - path: "#/info"
-        documentTemplate:
+          - [ info ]
+        documents:
           openapi: "3.1.0"
           info:
             title: an api name
-            version: '1.0'
+            version: "1.0"
           paths: {}
       - description: must return no problem if there's contact property in info
         expected: []
-        documentTemplate:
+        documents:
           openapi: "3.1.0"
           info:
             title: an api name
-            version: '1.0'
+            version: "1.0"
             contact: 
               name: a contact name
           paths: {} 

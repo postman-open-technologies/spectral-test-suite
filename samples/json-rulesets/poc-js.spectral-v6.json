@@ -1,0 +1,16 @@
+{
+  "rules": {
+    "contact-email-postman": {
+      "description": "Contact email must be <anything>@postman.com",
+      "formats": [ "oas2", "oas3"],
+      "severity": "error",
+      "given": "$.info.contact.email",
+      "then": {
+        "function": "pattern",
+        "functionOptions": {
+          "match": "/@postman.com$/"
+        }
+      }
+    }
+  }
+}
