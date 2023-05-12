@@ -1,14 +1,17 @@
 const Ajv2020 = require('ajv/dist/2020.js');
-const fileUtils = require('./file.js');
+const fileUtils = require('../utils/file.js');
 const dirname = require('path').dirname;
 const fileURLToPath = require('url').fileURLToPath;
 const path = require('path');
 const fs = require('fs');
 
-const DEFAULT_FORMAT = 'spectral-v1.0';
+const DEFAULT_FORMAT = '0.1';
 const SCHEMAS = {
-  'spectral-v1.0': 'spectral-test-validator-schemas/spectral-test-v10.json-schema.yaml'
+  '0.1': '/spectral-test-validator-schemas/spectral-test-suite-v0.1.json-schema.yaml'
 }
+
+///Users/arnaud/Dev/spectral-test-suite/src/tests/spectral-test-validator-schemas/spectral-test-suite-v0.1.json-schema.yaml
+///Users/arnaud/Dev/spectral-test-suite/src/tests/src/tests/spectral-test-validator-schemas/spectral-test-suite-v0.1.json-schema.yaml
 
 function getTestSuiteSchemaFilepath(schemaFilename) {
   // TODO manage "relative filename"
@@ -130,12 +133,14 @@ class SpectralTestDocument {
       };
     }
     this.document = document;
-    Object.keys(this.document.rules).forEach(rulename => {
-      const ruleTest = this.document.rules[rulename];
-      if(ruleTest.recommended === undefined){
-        ruleTest.recommended = true;
-      }
-    });
+    if(this.document.rules){
+      Object.keys(this.document.rules).forEach(rulename => {
+        const ruleTest = this.document.rules[rulename];
+        if(ruleTest.recommended === undefined){
+          ruleTest.recommended = true;
+        }
+      });  
+    }
     this.filename = documentFilename;
     this.rulesetFilename = getRulesetAbsoluteFilename(this.filename, this.document);
   }

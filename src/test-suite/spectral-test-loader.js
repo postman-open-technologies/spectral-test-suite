@@ -1,4 +1,4 @@
-const FileUtils = require('./file.js');
+const FileUtils = require('../utils/file.js');
 const {SpectralTestDocument} = require('./spectral-test-validator.js');
 
 function loadTests(testFilenames) {

@@ -1,0 +1,42 @@
+spectralTestSuite: "0.1"
+ruleset: ../poc-js.spectral-v6.js
+rules:
+  contact-email-postman:
+    format: openapi
+    versions: [ "2.0", "3.0", "3.1" ]
+    recommended: true
+    severity: error
+    given:
+      - description: Must find email
+        expected:
+          - [ info, contact, email ]
+        documents:
+          openapi: "3.1.0"
+          info:
+            title: an API
+            version: "1.0"
+            contact:
+              email: email@domain.com
+          paths: {}
+    then:
+      - description: Must return a problem if contact email is not expected domain
+        expected:
+          - [ info, contact, email ]
+        documents:
+          openapi: "3.1.0"
+          info:
+            title: an API
+            version: "1.0"
+            contact:
+              email: email@domain.com
+          paths: {}
+      - description: Must return no problem if contact email is expected domain
+        expected: []
+        documents:
+          openapi: "3.1.0"
+          info:
+            title: an API
+            version: "1.0"
+            contact:
+              email: email@postman.com
+          paths: {}

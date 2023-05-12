@@ -1,5 +1,5 @@
 const assert = require('assert');
-const spectralDebugger = require('../src/tests/spectral-debugger');
+const spectralDebugger = require('../../src/test-suite/spectral-debugger');
 
 // Spectral
 const bundleAndLoadRuleset = require('@stoplight/spectral-ruleset-bundler/with-loader').bundleAndLoadRuleset;

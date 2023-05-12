@@ -4,19 +4,14 @@ const resolve = require('path').resolve;
 const spectralCore = require('@stoplight/spectral-core');
 const { Spectral, Document } = spectralCore;
 const bundleAndLoadRuleset = require('@stoplight/spectral-ruleset-bundler/with-loader').bundleAndLoadRuleset;
+const spectralUtils = require('./spectral-utils');
 
 const fs = require('fs');
 const spectralRuntime = require('@stoplight/spectral-runtime');
 const { fetch } = spectralRuntime;
 const Parsers = require('@stoplight/spectral-parsers'); // make sure to install the package if you intend to use default parsers!
 
-// JSON Path Plus
-//const JSONPath = require('jsonpath-plus').JSONPath;
-// Now using pure Spectral instead of JSONPath to check what given paths find
 const spectralDebugger = require('./spectral-debugger');
-const pathUtils = require('./path-utils');
-// to load pure rule without parsing
-const fileUtils = require('./file');
 
 function spectralPathToJsonPointer(path){
   const escapedPath = path.map(value => value.replaceAll('/','~1'));
@@ -30,7 +25,7 @@ class SpectralTestWrapper {
 
   async initialize(rulesetFilename){
     this.absolutePath = resolve(rulesetFilename);
-    this.rulesetRaw = fileUtils.loadYaml(this.absolutePath);
+    //this.rulesetRaw = fileUtils.loadYaml(this.absolutePath);
     const ruleset = await bundleAndLoadRuleset(this.absolutePath, { fs, fetch });
     this.rulesetLoaded = ruleset;
     // Enable non recommended rules
@@ -133,14 +128,19 @@ class SpectralTestWrapper {
     const problems = await this.spectral.run(document);
     const simplifiedProblems = problems
                                   .filter(problem => (problem.code === rulename))
-                                  .map(problem => ({ path: spectralPathToJsonPointer(problem.path)}));
+                                  //.map(problem => ({ path: spectralPathToJsonPointer(problem.path)}));
+                                  .map(problem => problem.path);
     return simplifiedProblems;
   }
 
   /* Severity */
   getRuleSeverity(rulename){
-    return this.getRuleDefinition(rulename).severity;
+    // Depending on how the rule is loaded, definition severity is a number or a string
+    const severity = this.getRuleDefinition(rulename).severity;
+    const result = spectralUtils.getHumanReadableSeverity(severity);
+    return result;
   }
+
 
   /* Recommended */
   getRuleRecommended(rulename){
@@ -154,8 +154,7 @@ class SpectralTestWrapper {
   /* Format and Versions of spec targeted */
   // TODO do not take for granted that a rule works on a single format
   getRuleFormatAndVersions(rulename){
-    const rule = this.getRawRuleDefinition(rulename);
-    //console.log(rule);
+    const rule = this.getRuleDefinition(rulename);
     const formats = {
       // OpenAPI
       'oas2':   { format: 'openapi', versions: [ '2.0' ] },
@@ -175,7 +174,7 @@ class SpectralTestWrapper {
     let format;
     let versions = []
     if(rule.formats){
-      rule.formats.forEach(item => {
+      spectralUtils.getHumanReadableFormats(rule.formats).forEach(item => {
         format = formats[item].format;
         versions = Array.from(new Set(versions.concat(formats[item].versions))); 
       });
