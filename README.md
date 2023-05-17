@@ -15,6 +15,9 @@ Non-backward compatible changes may happen frequently.
   - The settings of the rule (such as severity or targeted format).
   - If the given paths find or didn't find what is expected to found or not found (multiple tests possible).
   - If the then check find or didn't find what is expected to found or not found (multiple tests possible).
+  - There can be one to many given or then tests
+    - Each one can use a single document used as a template to check the behavior across all versions targeted
+    - Each test document must be valid. They are validated against their schema before execution (this is to ensure the rules are really working).
 - There are also high-level checks:
   - Do all Spectral ruleset are targeted by at least one test file
   - Do all rules of all rulesets are tested
