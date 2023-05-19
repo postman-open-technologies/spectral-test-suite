@@ -1,7 +1,10 @@
 {
-  "name": "spectral-test-suite",
+  "name": "@postman-open-tech/spectral-test-suite",
+  "publishConfig": {
+    "access": "public"
+  },
   "version": "0.1.0",
-  "description": "Spectral test framework",
+  "description": "Mocha based Spectral test framework for OpenAPI and AsyncAPI rulesets",
   "main": "src/index.js",
   "scripts": {
     "test": "npx mocha tests/**/*.test.js",
@@ -33,6 +36,5 @@
   },
   "devDependencies": {
     "mocha": "^10.2.0"
-  },
-  "bin": "npx mocha src/cli/runner.js"
+  }
 }

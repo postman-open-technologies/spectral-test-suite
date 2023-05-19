@@ -3,12 +3,11 @@
 Are you sure your Spectral rules are working as intended?
 
 This project aims to help you ensure your Spectral rules are working as intending by providing a frame to your tests.
-It's currently a prototype in early alpha stage and coming without much documentation, so use at your own risk.
-Non-backward compatible changes may happen frequently.
+It's currently a prototype in early alpha stage, so use at your own risk. Non-backward compatible changes may happen frequently.
 
 # How does it work
 
-- It leverage test file written in YAML. A JSON schema of the test file format can be found in [`src/tests/spectral-test-validator-schemas/spectral-test-v10.json-schema.yaml`](src/tests/spectral-test-validator-schemas/spectral-test-v10.json-schema.yaml).
+- It leverage test file written in YAML. The JSON schema of the test file format can be found in [`src/tests/spectral-test-validator-schemas/spectral-test-v10.json-schema.json`](src/tests/spectral-test-validator-schemas/spectral-test-v10.json-schema.json).
 - Each test file can contain tests for a single or multiple rules of a ruleset file (I recommend writing one test file per rule).
 - All targeted tests file are aggregrated and then each rule test is run.
 - A rule test checks
@@ -35,23 +34,11 @@ So far, this project supports:
 
 ## Add dependencies to your Spectral project
 
-Two dev dependencies to add:
-
-- mocha (`npm install --save-dev mocha`)
-- This project (which is not yet published as an npm package: coming soon).
-
-### Install Spectral Test Suite as local dependency
+Two dev dependencies to add mocha and spectral-test-suite:
 
 ```
-git clone https://github.com/postman-open-technologies/spectral-test-suite
-cd <your-project>
-npm install --save-dev ../spectral-test-suite
-```
-
-### Install Spectral Test Suite As Github dependency
-
-```
-npm install --save-dev postman-open-technologies/spectral-test-suite
+npm install --save-dev @postman-open-tech/spectral-test-suite
+npm install --save-dev mocha
 ```
 
 ## Create a test runner file
@@ -59,7 +46,7 @@ npm install --save-dev postman-open-technologies/spectral-test-suite
 Create a `tests/spectral.test.js` file with the [following content](doc/test-runner-examples/spectral.test.js) (the location and filename are just examples):
 
 ```
-const {cli} = require('spectral-test-suite');
+const {cli} = require('@postman-open-tech/spectral-test-suite');
 cli(process.argv);
 ```
 
@@ -70,12 +57,21 @@ You can add a command to your package.json as follow:
 ```
 {
   "scripts": {
+    "test": "npx mocha ./tests/spectral.test.js",
+  }
+}
+```
+Or if you need a dedicated command:
+
+```
+{
+  "scripts": {
     "spectral-test": "npx mocha ./tests/spectral.test.js",
   }
 }
 ```
 
-If your already use mocha in this project, your regular test command can launch the spectral test.
+And if your already use mocha in this project, your regular test command can launch the spectral test.
 ```
 {
   "scripts": {
@@ -154,8 +150,6 @@ Most of the time you can use the same document across versions for a test, but i
 you need to test documents that are different depending on the version. You may need several test or several documents to test the same case. 
 
 That's why each `documents` used in `given` or `then` tests can be a list or a single item, and each document can target the rule level `versions` or specific ones. And that's also why the same document can be used to generate tests for different versions.
-
-
 
 #### Documents is a list or single item
 
