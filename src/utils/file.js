@@ -14,8 +14,18 @@ function saveJson(data, filename){
   fs.writeFileSync(filename, content, 'utf8');
 }
 
-function listFiles(pattern) {
-  const paths = glob.sync(pattern);
+const DEFAULT_IGNORED = {
+  ignored: p => /node_modules/.test(p.name)
+}
+
+function listFiles(pattern, overrideGlobConfiguration) {
+  let globConfiguration;
+  if(!overrideGlobConfiguration){
+    globConfiguration = {
+      ignore: "node_modules/**/*.*"
+    }
+  }
+  const paths = glob.sync(pattern, globConfiguration);
   // Turning relative path in absolute ones
   const absolutePaths = paths.map(path => resolve(path));
   return absolutePaths;

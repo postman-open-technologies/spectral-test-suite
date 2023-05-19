@@ -3,7 +3,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Mocha based Spectral test framework for OpenAPI and AsyncAPI rulesets",
   "main": "src/index.js",
   "scripts": {
